@@ -13,7 +13,7 @@ const PlanetsList = ({ navigation }) => {
 
   const fetchPlanets = async () => {
     try {
-      const response = await fetch('http://172.20.10.2:3000/planets'); // Cambia por tu URL del backend
+      const response = await fetch('http://192.168.1.9:3000/planets'); // Cambia por tu URL del backend
       if (response.ok) {
         const data = await response.json();
         setPlanets(data); // Almacena los planetas en el estado

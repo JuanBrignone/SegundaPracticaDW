@@ -1,10 +1,7 @@
 import React, { useState } from 'react';
 import { View, TextInput, Button, StyleSheet, Alert } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
 
 const AddPlanet = ({ onAddPlanet }) => {
-  const navigation = useNavigation(); // Hook para acceder a la navegación
-
   const [newPlanet, setNewPlanet] = useState({
     name: '',
     description: '',
@@ -14,25 +11,32 @@ const AddPlanet = ({ onAddPlanet }) => {
   });
 
   const handleAddPlanet = async () => {
+    // Validación de campos antes de enviar
     if (
       newPlanet.name &&
       newPlanet.description &&
-      newPlanet.moons &&
-      newPlanet.moonNames &&
+      !isNaN(newPlanet.moons) && // Validar que `moons` sea un número
+      Array.isArray(newPlanet.moonNames) && // Validar que `moonNames` sea un array
       newPlanet.image
     ) {
       try {
-        const response = await fetch('http://172.20.10.2:3000/planets', {
+        const response = await fetch('http://192.168.1.9:3000/planets', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(newPlanet),
+          body: JSON.stringify({
+            name: newPlanet.name,
+            description: newPlanet.description,
+            moons: parseInt(newPlanet.moons), // Convertir a número
+            moon_names: newPlanet.moonNames, // Enviar como array
+            image: newPlanet.image,
+          }),
         });
-
+  
         if (response.ok) {
           const addedPlanet = await response.json();
-          onAddPlanet(addedPlanet); // Pasa el planeta agregado al componente padre
+          onAddPlanet(addedPlanet); // Pasar el nuevo planeta al componente padre
           setNewPlanet({
             name: '',
             description: '',
@@ -41,16 +45,16 @@ const AddPlanet = ({ onAddPlanet }) => {
             image: '',
           });
         } else {
-          alert('Error al agregar el planeta');
+          console.error(`Error en el POST: ${response.status}`);
         }
       } catch (error) {
         console.error('Error al agregar el planeta:', error);
-        alert('Error al agregar el planeta');
       }
     } else {
-      alert('Por favor, complete todos los campos');
+      alert('Por favor, complete todos los campos correctamente.');
     }
   };
+  
 
   return (
     <View style={styles.modalContainer}>

@@ -1,8 +1,43 @@
 import React from 'react';
-import { View, Text, Image, Button, StyleSheet } from 'react-native';
+import { View, Text, Image, Button, StyleSheet, Alert } from 'react-native';
 
 const PlanetDetails = ({ route, navigation }) => {
   const { planet } = route.params;
+
+  const handleDelete = () => {
+    // Confirmar la eliminación
+    Alert.alert(
+      'Eliminar Planeta',
+      `¿Estás seguro de que quieres eliminar ${planet.name}?`,
+      [
+        {
+          text: 'Cancelar',
+          style: 'cancel',
+        },
+        {
+          text: 'Eliminar',
+          onPress: () => {
+            // Hacer la solicitud DELETE al servidor
+            fetch(`http://192.168.1.9:3000/planets/${planet.id}`, {
+              method: 'DELETE',
+            })
+              .then((response) => {
+                if (response.ok) {
+                  // Si la eliminación fue exitosa, volver a la pantalla principal
+                  navigation.goBack();
+                } else {
+                  // Manejar error si la eliminación falla
+                  Alert.alert('Error', 'Hubo un problema al eliminar el planeta.');
+                }
+              })
+              .catch((error) => {
+                Alert.alert('Error', 'No se pudo conectar al servidor.');
+              });
+          },
+        },
+      ]
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -14,7 +49,7 @@ const PlanetDetails = ({ route, navigation }) => {
 
       <View style={styles.buttonContainer}>
         <Button title="Edit" onPress={() => { /* Implementar edición */ }} />
-        <Button title="Delete" onPress={() => { /* Implementar eliminación */ }} />
+        <Button title="Delete" onPress={handleDelete} />
       </View>
     </View>
   );
